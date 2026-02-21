@@ -294,8 +294,7 @@ elif page == "Wardrobe Manager":
                 st.divider()
                 st.subheader("Edit Item Details")
                 
-                new_color = st.selectbox("Color", ["Blue", "Red", "Black", "White", "Gray", "Green", "Yellow", "Pink", "Purple", "Orange", "Brown", "Multicolor", "Other"], 
-                                        index=["Blue", "Red", "Black", "White", "Gray", "Green", "Yellow", "Pink", "Purple", "Orange", "Brown", "Multicolor", "Other"].index(selected_item['Color'].capitalize()) if selected_item['Color'].capitalize() in ["Blue", "Red", "Black", "White", "Gray", "Green", "Yellow", "Pink", "Purple", "Orange", "Brown", "Multicolor", "Other"] else 0)
+                new_color = st.text_input("Color", value=selected_item['Color'].capitalize(), placeholder="e.g., Blue, Sage Green, Navy...")
                 new_style = st.selectbox("Style", ["Casual", "Formal", "Sport", "Vintage", "Bohemian", "Minimalist", "Other"],
                                         index=["Casual", "Formal", "Sport", "Vintage", "Bohemian", "Minimalist", "Other"].index(selected_item['Style'].capitalize()) if selected_item['Style'].capitalize() in ["Casual", "Formal", "Sport", "Vintage", "Bohemian", "Minimalist", "Other"] else 0)
                 new_season = st.selectbox("Season", ["Year-round", "Spring", "Summer", "Fall", "Winter", "Summer/Winter"],
