@@ -33,6 +33,25 @@ if not os.path.exists("wardrobe.csv"):
 outfits_df = pd.read_csv("outfits.csv")
 wardrobe_df = pd.read_csv("wardrobe.csv")
 
+# Ensure all required columns exist
+required_wardrobe_cols = ["ID", "Category", "Item", "Color", "Style", "Season", "Times Used"]
+for col in required_wardrobe_cols:
+    if col not in wardrobe_df.columns:
+        wardrobe_df[col] = 0 if col == "Times Used" else ""
+
+required_outfits_cols = ["Date", "Description", "Rating", "Notes", "Weather", "Occasion", "ID"]
+for col in required_outfits_cols:
+    if col not in outfits_df.columns:
+        outfits_df[col] = 0 if col in ["Rating", "ID"] else ""
+
+# Convert Times Used to numeric
+wardrobe_df["Times Used"] = pd.to_numeric(wardrobe_df["Times Used"], errors='coerce').fillna(0).astype(int)
+outfits_df["Rating"] = pd.to_numeric(outfits_df["Rating"], errors='coerce').fillna(0)
+
+# Save updated dataframes to ensure columns persist
+wardrobe_df.to_csv("wardrobe.csv", index=False)
+outfits_df.to_csv("outfits.csv", index=False)
+
 # Helper functions
 def get_next_item_id():
     if len(wardrobe_df) == 0:
@@ -41,8 +60,9 @@ def get_next_item_id():
 
 def update_item_usage(item_id):
     """Increment usage count for an item"""
+    global wardrobe_df
     wardrobe_df.loc[wardrobe_df["ID"] == item_id, "Times Used"] = \
-        wardrobe_df.loc[wardrobe_df["ID"] == item_id, "Times Used"].astype(int) + 1
+        pd.to_numeric(wardrobe_df.loc[wardrobe_df["ID"] == item_id, "Times Used"], errors='coerce').fillna(0).astype(int) + 1
     wardrobe_df.to_csv("wardrobe.csv", index=False)
 
 # Sidebar navigation
@@ -215,14 +235,17 @@ elif page == "Wardrobe Manager":
     with tab2:
         st.subheader("👕 Your Wardrobe")
         
-        # Filter options
+    # Filter options
         col1, col2, col3 = st.columns(3)
         with col1:
-            filter_category = st.selectbox("Filter by Category", ["All"] + wardrobe_df["Category"].unique().tolist())
+            categories = ["All"] + sorted(wardrobe_df["Category"].dropna().unique().tolist())
+            filter_category = st.selectbox("Filter by Category", categories)
         with col2:
-            filter_color = st.selectbox("Filter by Color", ["All"] + sorted(wardrobe_df["Color"].unique().tolist()))
+            colors = ["All"] + sorted([c for c in wardrobe_df["Color"].dropna().unique().tolist() if c])
+            filter_color = st.selectbox("Filter by Color", colors)
         with col3:
-            filter_style = st.selectbox("Filter by Style", ["All"] + sorted(wardrobe_df["Style"].unique().tolist()))
+            styles = ["All"] + sorted([s for s in wardrobe_df["Style"].dropna().unique().tolist() if s])
+            filter_style = st.selectbox("Filter by Style", styles)
         
         # Apply filters
         filtered_df = wardrobe_df.copy()
